@@ -1,5 +1,9 @@
 export type FolioType = 'Instruction' | 'Command' | 'Template' | 'Workflow' | 'Note' | 'Other';
-export type FolioStatus = 'Saved' | 'Reading' | 'Testing' | 'Favorite' | 'Archived' | 'Production-ready';
+export type FolioLifecycle = 'draft' | 'active' | 'archived';
+export type FolioFlags = {
+  isFavorite: boolean;
+  isProductionReady: boolean;
+};
 export type ThemePreference = 'system' | 'light' | 'dark';
 
 export type Rating = {
@@ -14,7 +18,8 @@ export type FolioItem = {
   id: string;
   title: string;
   type: FolioType;
-  status: FolioStatus;
+  lifecycle: FolioLifecycle;
+  flags: FolioFlags;
   description: string;
   content: string;
   sourceUrl?: string;
