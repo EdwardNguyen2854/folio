@@ -22,6 +22,7 @@ export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryVi
   const [query, setQuery] = useState('');
   const [type, setType] = useState<FolioType | 'All'>('All');
   const [lifecycle, setLifecycle] = useState<FolioLifecycle | 'All'>('All');
+  const [filterFavorite, setFilterFavorite] = useState(false);
   const [tag, setTag] = useState('All');
 
   const tags = useMemo(() => Array.from(new Set(items.flatMap((item) => item.tags))).sort(), [items]);
@@ -40,10 +41,11 @@ export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryVi
       ].join('\n').toLowerCase().includes(normalized);
       const matchesType = type === 'All' || item.type === type;
       const matchesLifecycle = lifecycle === 'All' || item.lifecycle === lifecycle;
+      const matchesFavorite = !filterFavorite || item.flags.isFavorite;
       const matchesTag = tag === 'All' || item.tags.includes(tag);
-      return matchesQuery && matchesType && matchesLifecycle && matchesTag;
+      return matchesQuery && matchesType && matchesLifecycle && matchesFavorite && matchesTag;
     }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [items, query, type, lifecycle, tag]);
+  }, [items, query, type, lifecycle, filterFavorite, tag]);
 
   const stats = useMemo(() => ({
     total: items.length,
@@ -77,6 +79,8 @@ export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryVi
         onTypeChange={setType}
         lifecycle={lifecycle}
         onLifecycleChange={setLifecycle}
+        filterFavorite={filterFavorite}
+        onFilterFavoriteChange={setFilterFavorite}
         tags={tags}
         tag={tag}
         onTagChange={setTag}
