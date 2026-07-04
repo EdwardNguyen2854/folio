@@ -20,7 +20,7 @@ A single-page workspace where every item is a Markdown document with structured 
 
 - **Capture** items by typing, uploading a file, or importing from a remote Markdown URL.
 - **Organize** items with tags, types, lifecycle status, and authorship.
-- **Compare** items side-by-side, by rendered preview, by raw text, or by line-level diff.
+- **Compare** items side-by-side, by rendered preview, by raw text, or by block-level diff.
 - **Rate** items across multiple dimensions to capture what works and why.
 - **Refine** items over time with notes, edits, and updated ratings.
 - **Back up and restore** the full library as a single portable JSON file.
@@ -35,7 +35,7 @@ A single-page workspace where every item is a Markdown document with structured 
 
 ## What Folio is not
 
-- Not a document editor or writing surface — it is a library and comparison tool.
+- Not a general-purpose writing surface — its editing is scoped to updating and improving library items, not authoring from scratch.
 - Not a collaboration platform — it is a personal, single-user workspace by design.
 - Not tied to any single ecosystem — items are plain Markdown, and the data format is open.
 

@@ -44,20 +44,15 @@ export function DetailView({ item, onEdit, onDelete, onDuplicate, onCompare, onC
     );
   }
 
-  const statusColor: Record<string, string> = {
-    Favorite: 'text-success',
-    'Production-ready': 'text-success',
-    Testing: 'text-warning',
-    Archived: 'text-faint',
-  };
-
   return (
     <section className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap text-xs text-muted mb-3">
             <Pill>{item.type}</Pill>
-            <span className={`text-xs font-[650] ${statusColor[item.status] || 'text-muted'}`}>{item.status}</span>
+            <Pill>{item.lifecycle}</Pill>
+            {item.flags.isFavorite && <span title="Favorite" className="text-warning">&#11088;</span>}
+            {item.flags.isProductionReady && <span title="Production-ready" className="text-success">&#10003;</span>}
             <span>{formatDate(item.updatedAt)}</span>
           </div>
           <h2 className="m-0 text-2xl font-[700] tracking-tight text-text break-words">{item.title}</h2>

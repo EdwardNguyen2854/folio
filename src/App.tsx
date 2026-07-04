@@ -80,7 +80,8 @@ function App() {
       title: `${item.title} copy`,
       createdAt,
       updatedAt: createdAt,
-      status: 'Saved',
+      lifecycle: 'active',
+      flags: { isFavorite: false, isProductionReady: false },
     };
     setItems((current) => [copy, ...current]);
     setSelectedId(copy.id);
@@ -164,7 +165,8 @@ function App() {
                     id: createId('wf'),
                     title: label,
                     type: 'Command',
-                    status: 'Saved',
+                    lifecycle: 'active',
+                    flags: { isFavorite: false, isProductionReady: false },
                     description,
                     content: `## ${label}\n\n**Workflow:** ${workflowId}\n**Phase:** ${phaseId}\n\n${description}`,
                     tags: [workflowId, phaseId],

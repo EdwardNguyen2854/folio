@@ -1,16 +1,16 @@
 import { MagnifyingGlass } from '@phosphor-icons/react';
-import type { FolioStatus, FolioType } from '../../types';
+import type { FolioLifecycle, FolioType } from '../../types';
 
 const allTypes: Array<FolioType | 'All'> = ['All', 'Instruction', 'Command', 'Template', 'Workflow', 'Note', 'Other'];
-const allStatuses: Array<FolioStatus | 'All'> = ['All', 'Saved', 'Reading', 'Testing', 'Favorite', 'Archived', 'Production-ready'];
+const allLifecycles: Array<FolioLifecycle | 'All'> = ['All', 'draft', 'active', 'archived'];
 
 type SearchToolbarProps = {
   query: string;
   onQueryChange: (value: string) => void;
   type: FolioType | 'All';
   onTypeChange: (value: FolioType | 'All') => void;
-  status: FolioStatus | 'All';
-  onStatusChange: (value: FolioStatus | 'All') => void;
+  lifecycle: FolioLifecycle | 'All';
+  onLifecycleChange: (value: FolioLifecycle | 'All') => void;
   tags: string[];
   tag: string;
   onTagChange: (value: string) => void;
@@ -38,7 +38,7 @@ function Chip({ active, onClick, label }: ChipProps) {
   );
 }
 
-export function SearchToolbar({ query, onQueryChange, type, onTypeChange, status, onStatusChange, tags, tag, onTagChange }: SearchToolbarProps) {
+export function SearchToolbar({ query, onQueryChange, type, onTypeChange, lifecycle, onLifecycleChange, tags, tag, onTagChange }: SearchToolbarProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 border border-border rounded-full bg-surface px-4 min-h-[44px]">
@@ -57,9 +57,9 @@ export function SearchToolbar({ query, onQueryChange, type, onTypeChange, status
           <Chip key={t} active={type === t} onClick={() => onTypeChange(t)} label={t} />
         ))}
 
-        <span className="text-xs text-faint font-medium ml-1">Status</span>
-        {allStatuses.map((s) => (
-          <Chip key={s} active={status === s} onClick={() => onStatusChange(s)} label={s} />
+        <span className="text-xs text-faint font-medium ml-1">Lifecycle</span>
+        {allLifecycles.map((l) => (
+          <Chip key={l} active={lifecycle === l} onClick={() => onLifecycleChange(l)} label={l} />
         ))}
 
         {tags.length > 0 && (

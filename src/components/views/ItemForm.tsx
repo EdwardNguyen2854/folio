@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { FolioItem, FolioStatus, FolioType } from '../../types';
+import type { FolioItem, FolioLifecycle, FolioType, FolioFlags } from '../../types';
 import { createId } from '../../lib/id';
 import { nowIso } from '../../lib/dates';
 import { emptyRating } from '../../lib/ratings';
@@ -20,13 +20,10 @@ const types: { value: FolioType; label: string }[] = [
   { value: 'Other', label: 'Other' },
 ];
 
-const statuses: { value: FolioStatus; label: string }[] = [
-  { value: 'Saved', label: 'Saved' },
-  { value: 'Reading', label: 'Reading' },
-  { value: 'Testing', label: 'Testing' },
-  { value: 'Favorite', label: 'Favorite' },
-  { value: 'Archived', label: 'Archived' },
-  { value: 'Production-ready', label: 'Production-ready' },
+const lifecycles: { value: FolioLifecycle; label: string }[] = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'active', label: 'Active' },
+  { value: 'archived', label: 'Archived' },
 ];
 
 export type ItemDraft = Omit<FolioItem, 'id' | 'createdAt' | 'updatedAt'>;
@@ -35,7 +32,8 @@ function createEmptyDraft(): ItemDraft {
   return {
     title: '',
     type: 'Instruction' as FolioType,
-    status: 'Saved' as FolioStatus,
+    lifecycle: 'active' as FolioLifecycle,
+    flags: { isFavorite: false, isProductionReady: false } as FolioFlags,
     description: '',
     content: '',
     sourceUrl: '',
@@ -51,7 +49,8 @@ function fromItem(item: FolioItem): ItemDraft {
   return {
     title: item.title,
     type: item.type,
-    status: item.status,
+    lifecycle: item.lifecycle,
+    flags: item.flags,
     description: item.description,
     content: item.content,
     sourceUrl: item.sourceUrl ?? '',
@@ -178,11 +177,29 @@ export function ItemForm({ item, open, onCancel, onSave }: ItemFormProps) {
           options={types}
         />
         <Select
-          label="Status"
-          value={draft.status}
-          onChange={(value) => update('status', value as FolioStatus)}
-          options={statuses}
+          label="Lifecycle"
+          value={draft.lifecycle}
+          onChange={(value) => update('lifecycle', value as FolioLifecycle)}
+          options={lifecycles}
         />
+        <label className="flex items-center gap-2 text-sm text-muted">
+          <input
+            type="checkbox"
+            checked={draft.flags.isFavorite}
+            onChange={(e) => update('flags', { ...draft.flags, isFavorite: e.target.checked })}
+            className="w-4 h-4 rounded border-border accent-accent"
+          />
+          <span>Favorite</span>
+        </label>
+        <label className="flex items-center gap-2 text-sm text-muted">
+          <input
+            type="checkbox"
+            checked={draft.flags.isProductionReady}
+            onChange={(e) => update('flags', { ...draft.flags, isProductionReady: e.target.checked })}
+            className="w-4 h-4 rounded border-border accent-accent"
+          />
+          <span>Production-ready</span>
+        </label>
         <Input
           label="Tags"
           value={tagInput}

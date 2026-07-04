@@ -102,7 +102,7 @@ export function CompareView({ items, initialLeftId, initialRightId, onSelectDeta
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="min-w-0">
                   <h2 className="m-0 text-base font-[650] tracking-tight text-text truncate">{left.title}</h2>
-                  <p className="m-0 text-xs text-muted mt-0.5">{left.type} &middot; {left.status} &middot; {left.rating.overall ? `\u2605 ${left.rating.overall}` : '\u2014'}</p>
+                  <p className="m-0 text-xs text-muted mt-0.5">{left.type} &middot; {left.lifecycle} &middot; {left.rating.overall ? `\u2605 ${left.rating.overall}` : '\u2014'}</p>
                 </div>
                 <Button variant="ghost" onClick={() => onSelectDetail(left)}>Open</Button>
               </div>
@@ -119,7 +119,7 @@ export function CompareView({ items, initialLeftId, initialRightId, onSelectDeta
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="min-w-0">
                   <h2 className="m-0 text-base font-[650] tracking-tight text-text truncate">{right.title}</h2>
-                  <p className="m-0 text-xs text-muted mt-0.5">{right.type} &middot; {right.status} &middot; {right.rating.overall ? `\u2605 ${right.rating.overall}` : '\u2014'}</p>
+                  <p className="m-0 text-xs text-muted mt-0.5">{right.type} &middot; {right.lifecycle} &middot; {right.rating.overall ? `\u2605 ${right.rating.overall}` : '\u2014'}</p>
                 </div>
                 <Button variant="ghost" onClick={() => onSelectDetail(right)}>Open</Button>
               </div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { FolioItem, FolioStatus, FolioType } from '../../types';
+import type { FolioItem, FolioLifecycle, FolioType } from '../../types';
 import { formatDate } from '../../lib/dates';
 import { Stars } from '../ui/Stars';
 import { Pill } from '../ui/Pill';
@@ -21,7 +21,7 @@ type LibraryViewProps = {
 export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryViewProps) {
   const [query, setQuery] = useState('');
   const [type, setType] = useState<FolioType | 'All'>('All');
-  const [status, setStatus] = useState<FolioStatus | 'All'>('All');
+  const [lifecycle, setLifecycle] = useState<FolioLifecycle | 'All'>('All');
   const [tag, setTag] = useState('All');
 
   const tags = useMemo(() => Array.from(new Set(items.flatMap((item) => item.tags))).sort(), [items]);
@@ -39,16 +39,16 @@ export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryVi
         item.tags.join(' '),
       ].join('\n').toLowerCase().includes(normalized);
       const matchesType = type === 'All' || item.type === type;
-      const matchesStatus = status === 'All' || item.status === status;
+      const matchesLifecycle = lifecycle === 'All' || item.lifecycle === lifecycle;
       const matchesTag = tag === 'All' || item.tags.includes(tag);
-      return matchesQuery && matchesType && matchesStatus && matchesTag;
+      return matchesQuery && matchesType && matchesLifecycle && matchesTag;
     }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [items, query, type, status, tag]);
+  }, [items, query, type, lifecycle, tag]);
 
   const stats = useMemo(() => ({
     total: items.length,
-    favorites: items.filter((item) => item.status === 'Favorite').length,
-    production: items.filter((item) => item.status === 'Production-ready').length,
+    favorites: items.filter((item) => item.flags.isFavorite).length,
+    production: items.filter((item) => item.flags.isProductionReady).length,
     averageRating: items.length ? items.reduce((sum, item) => sum + item.rating.overall, 0) / items.length : 0,
   }), [items]);
 
@@ -75,8 +75,8 @@ export function LibraryView({ items, selectedId, onSelect, onCreate }: LibraryVi
         onQueryChange={setQuery}
         type={type}
         onTypeChange={setType}
-        status={status}
-        onStatusChange={setStatus}
+        lifecycle={lifecycle}
+        onLifecycleChange={setLifecycle}
         tags={tags}
         tag={tag}
         onTagChange={setTag}
