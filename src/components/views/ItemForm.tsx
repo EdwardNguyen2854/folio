@@ -233,8 +233,8 @@ export function ItemForm({ item, open, onCancel, onSave }: ItemFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
-        {(['overall', 'clarity', 'usefulness', 'reusability', 'safety'] as const).map((key) => (
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {(['overall', 'clarity', 'usefulness'] as const).map((key) => (
           <div key={key} className="border border-border rounded-[10px] bg-surface-subtle p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-muted capitalize">{key}</span>

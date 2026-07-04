@@ -16,13 +16,17 @@ The collection of all items in Folio. Stored as a single JSON document in the br
 
 The kind of resource the item is. Fixed taxonomy: `Instruction | Command | Template | Workflow | Note | Other`. Types are currently closed — users cannot add custom types.
 
-### Status (FolioStatus)
+### Lifecycle (FolioLifecycle)
 
-The item's lifecycle and quality state. Currently a flat enum: `Saved | Reading | Testing | Favorite | Archived | Production-ready`. **This enum conflates lifecycle, quality signals, and flags — see Issue #2.**
+The item's lifecycle state: `draft | active | archived`. Mutually exclusive — an item is in exactly one lifecycle state.
+
+### Flags (FolioFlags)
+
+Additive boolean signals on an item: `isFavorite`, `isProductionReady`. These are orthogonal to lifecycle — an active item can be both a favorite and production-ready.
 
 ### Rating
 
-A set of numeric scores on a scale (presumably 1–5) across five dimensions: `overall`, `clarity`, `usefulness`, `reusability`, `safety`. Rating dimensions are fixed and cannot be customized.
+A set of numeric scores on a scale (1–5) across three dimensions: `overall`, `clarity`, `usefulness`. Rating dimensions are fixed. For qualitative assessment, use the `notes` field.
 
 ### Tags
 
@@ -44,28 +48,24 @@ Exporting the full library as a single JSON file and re-importing it. This is a 
 
 An unfinished view mode (`ViewMode.workflows`) referenced in the code but not yet implemented. Its purpose is not yet defined.
 
-## Key Decisions
+## Resolved Decisions
 
-### FolioStatus is an orthogonal mess
+### FolioStatus split into lifecycle + flags (Issue #2)
 
-**Decision needed:** FolioStatus currently mixes lifecycle (`Archived`), quality signals (`Favorite`, `Production-ready`), and engagement states (`Reading`, `Testing`). These are additive concepts that cannot coexist in a flat enum.
+The old `FolioStatus` enum (`Saved | Reading | Testing | Favorite | Archived | Production-ready`) conflated lifecycle, quality signals, and flags. Resolution: Split into `lifecycle: draft | active | archived` (mutually exclusive) and `flags: { isFavorite, isProductionReady }` (additive booleans). Implemented in Slices 1–4.
 
-Proposed resolution: Split into two fields — `lifecycle: draft | active | archived` and `flags: Favorite | Production-ready` (flags are additive booleans).
+### Rating dimensions reduced (Issue #3)
 
-### Rating dimensions are too rigid
+The five fixed rating dimensions (`overall`, `clarity`, `usefulness`, `reusability`, `safety`) were arbitrary. Resolution: Reduced to `overall`, `clarity`, `usefulness` — the three most universally relevant dimensions. `notes` serves as the qualitative overflow. Implemented in the rating-dimension reduction pass.
 
-**Decision needed:** The five fixed dimensions (`clarity`, `usefulness`, `reusability`, `safety`, `overall`) are arbitrary. Users with narrow libraries may find some dimensions irrelevant.
+### Version history is not yet implemented (Issue #1)
 
-Proposed resolution: Either allow custom rating dimensions or reduce to a minimal set with a qualitative notes pressure valve.
+The local-first promise is incomplete without version history. A JSON restore gives point-in-time recovery only. Resolution: Version history is explicitly disclaimed. Power users are directed to use **Git** for history tracking — Folio items are Markdown files that integrate naturally with Git workflows. This may be revisited in a future release.
+
+## Remaining Open Decisions
 
 ### Compare diff is block-level, not line-level
 
 **Decision needed:** "Line-level diff" was listed in the VISION but is impractical for unstructured Markdown. The current implementation is block-level.
 
 Resolution: Diff operates at the Markdown block level (paragraphs, code fences, list items), not individual lines.
-
-### Version history is not yet implemented
-
-**Decision needed:** The local-first promise is incomplete without version history. A JSON restore gives point-in-time recovery only.
-
-Resolution: Either implement per-item version snapshots or explicitly disclaim version history and direct power users to Git for history tracking.

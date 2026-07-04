@@ -10,8 +10,6 @@ export type Rating = {
   overall: number;
   clarity: number;
   usefulness: number;
-  reusability: number;
-  safety: number;
 };
 
 export type FolioItem = {

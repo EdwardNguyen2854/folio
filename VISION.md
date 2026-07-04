@@ -41,4 +41,4 @@ A single-page workspace where every item is a Markdown document with structured 
 
 ## Where it is headed
 
-The current focus is the core loop: capture, organize, compare, rate, refine. Future directions include version history per item, collections, saved compare notes, deeper frontmatter and license handling, bulk folder import, browser-based capture helpers, and optional sync for users who want shared access without giving up local ownership.
+The current focus is the core loop: capture, organize, compare, rate, refine. Future directions include collections, saved compare notes, deeper frontmatter and license handling, bulk folder import, browser-based capture helpers, and optional sync for users who want shared access without giving up local ownership. Version history is not planned — power users should track changes via Git, as items are plain Markdown that integrate naturally with Git workflows.

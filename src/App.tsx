@@ -170,7 +170,7 @@ function App() {
                     description,
                     content: `## ${label}\n\n**Workflow:** ${workflowId}\n**Phase:** ${phaseId}\n\n${description}`,
                     tags: [workflowId, phaseId],
-                    rating: { overall: 0, clarity: 0, usefulness: 0, reusability: 0, safety: 0 },
+                    rating: { overall: 0, clarity: 0, usefulness: 0 },
                     notes: '',
                     sourceUrl: '',
                     author: '',

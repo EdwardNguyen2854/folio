@@ -11,7 +11,7 @@ const createOldItem = (status: 'Saved' | 'Reading' | 'Testing' | 'Favorite' | 'A
   description: 'Test description',
   content: '# Test content',
   tags: ['test'],
-  rating: { overall: 4, clarity: 4, usefulness: 4, reusability: 4, safety: 4 },
+  rating: { overall: 4, clarity: 4, usefulness: 4 },
   notes: 'Test notes',
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
@@ -26,7 +26,7 @@ const createV2Item = (overrides?: Partial<FolioItem>): FolioItem => ({
   description: 'V2 description',
   content: '# V2 content',
   tags: ['v2'],
-  rating: { overall: 3, clarity: 3, usefulness: 3, reusability: 3, safety: 3 },
+  rating: { overall: 3, clarity: 3, usefulness: 3 },
   notes: '',
   createdAt: '2024-06-01T00:00:00.000Z',
   updatedAt: '2024-06-01T00:00:00.000Z',
@@ -110,7 +110,7 @@ describe('migrateFromV1', () => {
       author: 'Test Author',
       license: 'MIT',
       tags: ['tag1', 'tag2'],
-      rating: { overall: 5, clarity: 4, usefulness: 3, reusability: 4, safety: 5 },
+      rating: { overall: 5, clarity: 4, usefulness: 3 },
       notes: 'Some notes',
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-02T00:00:00.000Z',
@@ -183,7 +183,7 @@ describe('importItemsFromFile', () => {
         author: 'Author',
         license: 'MIT',
         tags: ['a', 'b'],
-        rating: { overall: 5, clarity: 5, usefulness: 5, reusability: 5, safety: 5 },
+        rating: { overall: 5, clarity: 5, usefulness: 5 },
         notes: 'Some notes',
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-06-01T00:00:00.000Z',
@@ -201,7 +201,7 @@ describe('importItemsFromFile', () => {
   });
 
   it('treats items with neither status nor lifecycle as v1', async () => {
-    const bare = { id: 'bare', title: 'No schema', type: 'Note', tags: [], rating: { overall: 0, clarity: 0, usefulness: 0, reusability: 0, safety: 0 }, notes: '', createdAt: '', updatedAt: '' };
+    const bare = { id: 'bare', title: 'No schema', type: 'Note', tags: [], rating: { overall: 0, clarity: 0, usefulness: 0 }, notes: '', createdAt: '', updatedAt: '' };
     const file = toFile([bare]);
     const result = await importItemsFromFile(file);
 

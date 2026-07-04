@@ -4,8 +4,6 @@ export const emptyRating: Rating = {
   overall: 0,
   clarity: 0,
   usefulness: 0,
-  reusability: 0,
-  safety: 0,
 };
 
 export function clampRating(value: number): number {

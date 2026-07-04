@@ -20,8 +20,8 @@ export type OldFolioItem = {
     overall: number;
     clarity: number;
     usefulness: number;
-    reusability: number;
-    safety: number;
+    reusability?: number;
+    safety?: number;
   };
   notes: string;
   createdAt: string;
