@@ -1,61 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { FolioItem, FolioLifecycle, FolioFlags } from '../types';
-
-type OldFolioItem = {
-  id: string;
-  title: string;
-  type: 'Instruction' | 'Command' | 'Template' | 'Workflow' | 'Note' | 'Other';
-  status: 'Saved' | 'Reading' | 'Testing' | 'Favorite' | 'Archived' | 'Production-ready';
-  description: string;
-  content: string;
-  sourceUrl?: string;
-  author?: string;
-  license?: string;
-  tags: string[];
-  rating: {
-    overall: number;
-    clarity: number;
-    usefulness: number;
-    reusability: number;
-    safety: number;
-  };
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-function migrateFromV1(oldItems: OldFolioItem[]): FolioItem[] {
-  return oldItems.map((item): FolioItem => {
-    let lifecycle: FolioLifecycle = 'active';
-    let flags: FolioFlags = { isFavorite: false, isProductionReady: false };
-
-    if (item.status === 'Archived') {
-      lifecycle = 'archived';
-    } else if (item.status === 'Favorite') {
-      flags.isFavorite = true;
-    } else if (item.status === 'Production-ready') {
-      flags.isProductionReady = true;
-    }
-
-    return {
-      id: item.id,
-      title: item.title,
-      type: item.type,
-      lifecycle,
-      flags,
-      description: item.description,
-      content: item.content,
-      sourceUrl: item.sourceUrl,
-      author: item.author,
-      license: item.license,
-      tags: item.tags,
-      rating: item.rating,
-      notes: item.notes,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    };
-  });
-}
+import { migrateFromV1, importItemsFromFile } from './storage';
+import type { OldFolioItem } from './storage';
 
 const createOldItem = (status: 'Saved' | 'Reading' | 'Testing' | 'Favorite' | 'Archived' | 'Production-ready'): OldFolioItem => ({
   id: 'test-id',
@@ -70,6 +16,26 @@ const createOldItem = (status: 'Saved' | 'Reading' | 'Testing' | 'Favorite' | 'A
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
 });
+
+const createV2Item = (overrides?: Partial<FolioItem>): FolioItem => ({
+  id: 'v2-id',
+  title: 'V2 Item',
+  type: 'Note',
+  lifecycle: 'active',
+  flags: { isFavorite: false, isProductionReady: false },
+  description: 'V2 description',
+  content: '# V2 content',
+  tags: ['v2'],
+  rating: { overall: 3, clarity: 3, usefulness: 3, reusability: 3, safety: 3 },
+  notes: '',
+  createdAt: '2024-06-01T00:00:00.000Z',
+  updatedAt: '2024-06-01T00:00:00.000Z',
+  ...overrides,
+});
+
+function toFile(data: unknown, name = 'import.json'): File {
+  return new File([JSON.stringify(data)], name, { type: 'application/json' });
+}
 
 describe('migrateFromV1', () => {
   it('migrates Archived status to lifecycle: archived with no flags', () => {
@@ -165,5 +131,82 @@ describe('migrateFromV1', () => {
     expect(migrated[0].notes).toBe(oldItem.notes);
     expect(migrated[0].createdAt).toBe(oldItem.createdAt);
     expect(migrated[0].updatedAt).toBe(oldItem.updatedAt);
+  });
+});
+
+describe('importItemsFromFile', () => {
+  it('imports v2 items as-is', async () => {
+    const items = [createV2Item()];
+    const file = toFile(items);
+    const result = await importItemsFromFile(file);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].lifecycle).toBe('active');
+    expect(result[0].flags).toEqual({ isFavorite: false, isProductionReady: false });
+  });
+
+  it('migrates v1 items on import', async () => {
+    const v1Item = createOldItem('Favorite');
+    const file = toFile([v1Item]);
+    const result = await importItemsFromFile(file);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].lifecycle).toBe('active');
+    expect(result[0].flags.isFavorite).toBe(true);
+    expect(result[0].flags.isProductionReady).toBe(false);
+  });
+
+  it('handles mixed v1 and v2 items in one file', async () => {
+    const v2Item = createV2Item({ id: 'v2-id', title: 'Already v2' });
+    const v1Item = createOldItem('Archived');
+    const file = toFile([v2Item, v1Item]);
+    const result = await importItemsFromFile(file);
+
+    expect(result).toHaveLength(2);
+    expect(result[0].lifecycle).toBe('active');
+    expect(result[0].id).toBe('v2-id');
+    expect(result[1].lifecycle).toBe('archived');
+    expect(result[1].flags.isFavorite).toBe(false);
+  });
+
+  it('preserves all fields when importing v2 items', async () => {
+    const items = [
+      createV2Item({
+        id: 'keep-id',
+        title: 'Original Title',
+        type: 'Command',
+        lifecycle: 'draft',
+        flags: { isFavorite: true, isProductionReady: true },
+        description: 'Original desc',
+        content: '# Original',
+        sourceUrl: 'https://example.com',
+        author: 'Author',
+        license: 'MIT',
+        tags: ['a', 'b'],
+        rating: { overall: 5, clarity: 5, usefulness: 5, reusability: 5, safety: 5 },
+        notes: 'Some notes',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-06-01T00:00:00.000Z',
+      }),
+    ];
+    const file = toFile(items);
+    const result = await importItemsFromFile(file);
+
+    expect(result[0]).toEqual(items[0]);
+  });
+
+  it('throws for non-array input', async () => {
+    const file = toFile({ not: 'an array' });
+    await expect(importItemsFromFile(file)).rejects.toThrow('must contain an array');
+  });
+
+  it('treats items with neither status nor lifecycle as v1', async () => {
+    const bare = { id: 'bare', title: 'No schema', type: 'Note', tags: [], rating: { overall: 0, clarity: 0, usefulness: 0, reusability: 0, safety: 0 }, notes: '', createdAt: '', updatedAt: '' };
+    const file = toFile([bare]);
+    const result = await importItemsFromFile(file);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].lifecycle).toBe('active');
+    expect(result[0].flags).toEqual({ isFavorite: false, isProductionReady: false });
   });
 });

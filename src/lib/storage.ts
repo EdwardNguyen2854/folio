@@ -5,7 +5,7 @@ const ITEMS_KEY = 'folio.items.v2';
 const THEME_KEY = 'folio.theme.v1';
 const SEEDED_KEY = 'folio.seeded.v1';
 
-type OldFolioItem = {
+export type OldFolioItem = {
   id: string;
   title: string;
   type: 'Instruction' | 'Command' | 'Template' | 'Workflow' | 'Note' | 'Other';
@@ -28,7 +28,7 @@ type OldFolioItem = {
   updatedAt: string;
 };
 
-function migrateFromV1(oldItems: OldFolioItem[]): FolioItem[] {
+export function migrateFromV1(oldItems: OldFolioItem[]): FolioItem[] {
   return oldItems.map((item): FolioItem => {
     let lifecycle: FolioLifecycle = 'active';
     let flags: FolioFlags = { isFavorite: false, isProductionReady: false };
@@ -112,11 +112,27 @@ export function exportItems(items: FolioItem[]): void {
   URL.revokeObjectURL(url);
 }
 
+function isV1Item(item: Record<string, unknown>): boolean {
+  return 'status' in item && !('lifecycle' in item);
+}
+
+function isV2Item(item: Record<string, unknown>): boolean {
+  return 'lifecycle' in item;
+}
+
 export async function importItemsFromFile(file: File): Promise<FolioItem[]> {
   const text = await file.text();
-  const parsed = JSON.parse(text) as FolioItem[];
+  const parsed = JSON.parse(text);
   if (!Array.isArray(parsed)) throw new Error('Import file must contain an array of Folio items.');
-  return parsed;
+
+  return parsed.map((item: Record<string, unknown>) => {
+    if (isV2Item(item)) return item as unknown as FolioItem;
+    if (isV1Item(item)) {
+      const migrated = migrateFromV1([item as unknown as OldFolioItem]);
+      return migrated[0];
+    }
+    return migrateFromV1([item as unknown as OldFolioItem])[0];
+  });
 }
 
 export function loadThemePreference(): ThemePreference {
